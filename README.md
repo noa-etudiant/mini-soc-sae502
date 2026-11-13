@@ -8,7 +8,7 @@ pour centraliser les logs et générer des alertes.
 
 ## Prérequis
 
-- Une VM Linux (Debian/Ubuntu) avec 4 Go de RAM minimum
+- Une VM Debian 13 avec 8 Go de RAM (Elasticsearch et Kibana en ont besoin)
 - Un accès Internet
 - git
 
