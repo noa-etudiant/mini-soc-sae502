@@ -1,0 +1,4 @@
+# Fins de ligne Linux (LF) pour tout le projet : le code tourne sur une VM Linux
+* text=auto eol=lf
+*.pdf binary
+*.png binary
