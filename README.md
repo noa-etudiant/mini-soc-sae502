@@ -17,6 +17,6 @@ pour centraliser les logs et générer des alertes.
 ```bash
 git clone https://github.com/noa-etudiant/mini-soc-sae502.git
 cd mini-soc-sae502
-./bootstrap.sh
-ansible-playbook deploy_soc.yml --ask-vault-pass
+sudo ./bootstrap.sh
+sudo docker exec -it CT-manager ansible-playbook deploy_soc.yml --ask-vault-pass
 ```
