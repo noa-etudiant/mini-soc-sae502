@@ -1,0 +1,27 @@
+# Mot de passe du vault Ansible : ne JAMAIS le pousser sur GitHub
+.vault_pass
+.vault_pass.txt
+
+# Clés SSH générées pour les conteneurs
+*.pem
+id_rsa*
+id_ed25519*
+ssh_keys/
+
+# Fichiers temporaires Ansible
+*.retry
+.ansible/
+
+# Documentation Sphinx générée
+docs/_build/
+
+# Python
+__pycache__/
+*.pyc
+.venv/
+
+# Éditeurs / système
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
