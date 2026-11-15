@@ -1,0 +1,8 @@
+---
+# Playbook principal : déploie tout le mini-SOC
+# lancement : ansible-playbook deploy_soc.yml --ask-vault-pass
+
+- name: Préparation de la VM hôte
+  hosts: vm
+  roles:
+    - vm_prep

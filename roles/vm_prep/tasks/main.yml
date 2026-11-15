@@ -1,2 +1,19 @@
 ---
-# Rôle vm_prep : tâches à venir
+# Rôle vm_prep : prépare la VM hôte
+
+# docker.io est déjà installé par bootstrap.sh, ici on s'assure juste qu'il est là.
+# python3-docker sert aux modules docker d'Ansible (création réseau, conteneurs...)
+- name: Installer Docker et la librairie python docker
+  apt:
+    name:
+      - docker.io
+      - python3-docker
+    state: present
+    update_cache: yes
+    cache_valid_time: 3600   # pas de apt update si déjà fait il y a moins d'1h
+
+- name: Docker démarré et lancé au boot
+  service:
+    name: docker
+    state: started
+    enabled: yes
