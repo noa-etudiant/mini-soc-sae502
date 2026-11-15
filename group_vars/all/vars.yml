@@ -1,0 +1,6 @@
+# Variables communes à tous les rôles
+
+# les vrais mots de passe sont dans vault.yml (chiffré avec ansible-vault)
+elastic_password: "{{ vault_elastic_password }}"
+kibana_system_password: "{{ vault_kibana_system_password }}"
+kibana_encryption_key: "{{ vault_kibana_encryption_key }}"
