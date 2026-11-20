@@ -17,3 +17,12 @@
     name: docker
     state: started
     enabled: yes
+
+# Elasticsearch refuse de démarrer si cette valeur est trop basse (65530 par défaut).
+# Le fichier dans /etc/sysctl.d/ permet de garder le réglage après un reboot.
+- name: vm.max_map_count à 262144 pour Elasticsearch
+  sysctl:
+    name: vm.max_map_count
+    value: "262144"
+    sysctl_file: /etc/sysctl.d/99-elasticsearch.conf
+    reload: yes
