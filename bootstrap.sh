@@ -43,17 +43,16 @@ echo "== 4/5 Construction de l'image de CT-manager"
 docker build -t soc-manager "$PROJET/docker/manager"
 
 echo "== 5/5 Démarrage de CT-manager (192.168.70.10)"
+# on supprime l'ancien CT-manager s'il existe, pour qu'il reparte sur la dernière image.
+# Rien n'est perdu : le projet est sur la VM, monté dans /projet.
+docker rm -f CT-manager > /dev/null 2>&1 || true
+
 # --restart unless-stopped : le conteneur redémarre tout seul quand on rallume la VM
-if docker ps -a --format '{{.Names}}' | grep -qx CT-manager; then
-    docker update --restart unless-stopped CT-manager > /dev/null
-    docker start CT-manager > /dev/null
-else
-    docker run -d --name CT-manager --hostname CT-manager \
-        --restart unless-stopped \
-        --network infra_soc --ip 192.168.70.10 \
-        -v "$PROJET":/projet \
-        soc-manager
-fi
+docker run -d --name CT-manager --hostname CT-manager \
+    --restart unless-stopped \
+    --network infra_soc --ip 192.168.70.10 \
+    -v "$PROJET":/projet \
+    soc-manager
 
 echo
 echo "C'est prêt. Pour lancer le déploiement :"

@@ -1,5 +1,7 @@
 # Image de CT-manager : juste Debian avec Ansible et un client SSH
-FROM debian:12
+# Debian 13 comme la VM : avec Debian 12, le module docker d'Ansible est trop vieux
+# et ne marche pas avec la librairie python requests de la VM
+FROM debian:13
 
 # le paquet ansible de Debian contient déjà la collection community.docker
 RUN apt-get update \
