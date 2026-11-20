@@ -26,3 +26,13 @@
     value: "262144"
     sysctl_file: /etc/sysctl.d/99-elasticsearch.conf
     reload: yes
+
+# Réseau des 5 conteneurs. bootstrap.sh l'a déjà créé pour CT-manager,
+# Ansible vérifie qu'il existe avec la bonne config (sinon il le crée).
+- name: Réseau Docker infra_soc
+  community.docker.docker_network:
+    name: infra_soc
+    driver: bridge
+    ipam_config:
+      - subnet: 192.168.70.0/24
+        gateway: 192.168.70.1
