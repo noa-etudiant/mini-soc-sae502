@@ -36,3 +36,48 @@
     ipam_config:
       - subnet: 192.168.70.0/24
         gateway: 192.168.70.1
+
+# --- Conteneurs CT-target et CT-attacker ---
+# Les Dockerfiles sont dans le projet (sur CT-manager), mais Docker tourne sur la VM :
+# on les copie d'abord sur la VM, avec la clé publique SSH, puis on construit les images.
+
+- name: Copier les Dockerfiles sur la VM
+  copy:
+    src: "{{ playbook_dir }}/docker/{{ item }}/Dockerfile"
+    dest: "/opt/mini-soc/{{ item }}/"
+  loop: [target, attacker]
+
+- name: Copier la clé publique de CT-manager à côté des Dockerfiles
+  copy:
+    src: "{{ playbook_dir }}/ssh_keys/id_ed25519.pub"
+    dest: "/opt/mini-soc/{{ item }}/"
+  loop: [target, attacker]
+
+- name: Construire les images soc-target et soc-attacker
+  community.docker.docker_image:
+    name: "soc-{{ item }}"
+    source: build
+    build:
+      path: "/opt/mini-soc/{{ item }}"
+  loop: [target, attacker]
+
+- name: Lancer CT-target et CT-attacker sur infra_soc
+  community.docker.docker_container:
+    name: "{{ item.nom }}"
+    hostname: "{{ item.nom }}"
+    image: "{{ item.image }}"
+    restart_policy: unless-stopped
+    networks:
+      - name: infra_soc
+        ipv4_address: "{{ item.ip }}"
+  loop:
+    - { nom: CT-target,   image: soc-target,   ip: 192.168.70.30 }
+    - { nom: CT-attacker, image: soc-attacker, ip: 192.168.70.40 }
+
+# on attend que SSH réponde, sinon les rôles suivants échoueraient
+- name: Attendre que SSH soit prêt sur les conteneurs
+  wait_for:
+    host: "{{ item }}"
+    port: 22
+    timeout: 60
+  loop: [192.168.70.30, 192.168.70.40]
