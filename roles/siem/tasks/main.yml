@@ -38,3 +38,35 @@
   until: es_reponse.status == 200
   retries: 30
   delay: 10
+
+# Depuis la version 8, Kibana n'a pas le droit d'utiliser le compte elastic.
+# Il utilise le compte kibana_system, qui existe déjà mais sans mot de passe connu.
+
+# On teste d'abord si kibana_system arrive déjà à se connecter :
+# 200 = mot de passe déjà bon, 401 = il faut le définir.
+- name: Tester la connexion avec kibana_system
+  uri:
+    url: https://192.168.70.20:9200/_security/_authenticate
+    user: kibana_system
+    password: "{{ kibana_system_password }}"
+    force_basic_auth: yes
+    validate_certs: no
+    status_code: [200, 401]
+  register: test_kibana
+
+# Requête à l'API d'Elasticsearch (connecté en elastic) pour changer le mot de passe.
+# Seulement si le test a échoué : comme ça, au 2e lancement on ne refait rien.
+- name: Définir le mot de passe de kibana_system
+  uri:
+    url: https://192.168.70.20:9200/_security/user/kibana_system/_password
+    method: POST
+    user: elastic
+    password: "{{ elastic_password }}"
+    force_basic_auth: yes
+    validate_certs: no
+    body_format: json
+    body:
+      password: "{{ kibana_system_password }}"
+  when: test_kibana.status == 401
+  changed_when: true
+  no_log: true
