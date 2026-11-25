@@ -6,3 +6,9 @@
   hosts: vm
   roles:
     - vm_prep
+
+# Elasticsearch et Kibana sont pilotés depuis la VM (images officielles sans SSH)
+- name: Stack SIEM (Elasticsearch + Kibana)
+  hosts: vm
+  roles:
+    - siem

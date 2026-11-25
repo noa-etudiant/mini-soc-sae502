@@ -1,2 +1,40 @@
 ---
-# Rôle siem : tâches à venir
+# Rôle siem : Elasticsearch + Kibana
+# Ce sont les images officielles d'Elastic (sans SSH), donc tout se fait
+# depuis la VM avec les modules docker.
+
+# Au premier démarrage, Elasticsearch active tout seul la sécurité :
+# mot de passe sur l'utilisateur elastic + HTTPS avec un certificat qu'il génère.
+# Les 2 volumes gardent la config (certificats) et les données si on recrée le conteneur.
+- name: Conteneur Elasticsearch
+  community.docker.docker_container:
+    name: CT-elasticsearch
+    hostname: CT-elasticsearch
+    image: "docker.elastic.co/elasticsearch/elasticsearch:{{ elk_version }}"
+    restart_policy: unless-stopped
+    memory: 2g                        # limite de RAM du conteneur
+    env:
+      ELASTIC_PASSWORD: "{{ elastic_password }}"
+      ES_JAVA_OPTS: "-Xms1g -Xmx1g"   # mémoire de Java, la moitié de la limite
+    volumes:
+      - es-config:/usr/share/elasticsearch/config
+      - es-data:/usr/share/elasticsearch/data
+    networks:
+      - name: infra_soc
+        ipv4_address: 192.168.70.20
+  no_log: true   # pour ne pas afficher le mot de passe dans le terminal
+
+# Elasticsearch met environ 1 minute à démarrer.
+# On réessaie toutes les 10 s jusqu'à ce qu'il réponde avec le bon mot de passe.
+# validate_certs: no car le certificat est auto-signé.
+- name: Attendre qu'Elasticsearch réponde
+  uri:
+    url: https://192.168.70.20:9200
+    user: elastic
+    password: "{{ elastic_password }}"
+    force_basic_auth: yes
+    validate_certs: no
+  register: es_reponse
+  until: es_reponse.status == 200
+  retries: 30
+  delay: 10
